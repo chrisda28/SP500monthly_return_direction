@@ -1,6 +1,7 @@
 import copy
 import yfinance as yf
 import pandas as pd
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -11,11 +12,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 
-TIME_PERIOD = "10y"  # specifies how much data to collect,
-# must be one of ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
-
-
-def get_daily_stock_data(ticker: str, time_period: TIME_PERIOD):
+def get_daily_stock_data(ticker: str, time_period: str):
     """Get daily stock data, format date column, and calc NaN value occurrence"""
     stock = yf.Ticker(ticker)  # create stock object
     history = stock.history(period=time_period)  # specify data time period to receive
@@ -59,45 +56,66 @@ def prep_data(df):
     return x_train, y_train, x_test, y_test
 
 
+def run_model(ticker, time_period):
+    df, missing_count = get_daily_stock_data(ticker=ticker, time_period=time_period)
+    x_train, y_train, x_test, y_test = prep_data(df=df)
+    lr_classifier = LogisticRegression()
+    scaler = StandardScaler()
+    x_train_scaled = scaler.fit_transform(x_train)
+    x_test_scaled = scaler.transform(x_test)
+    lr_classifier.fit(X=x_train_scaled, y=y_train)
+    predictions = lr_classifier.predict(x_test_scaled)
+    accuracy = accuracy_score(y_test, predictions)
+    return predictions, accuracy, y_test
+
 def plot_confusion_matrix(y_true, y_pred):
     mtx = confusion_matrix(y_true, y_pred)
     fig, ax = plt.subplots(figsize=(8, 8))
     sns.heatmap(mtx, annot=True, fmt='d', linewidths=.75,  cbar=False, ax=ax, cmap='Blues', linecolor='white')
     plt.ylabel('true label')
     plt.xlabel('predicted label')
-    plt.show()
+    static_dir = os.path.join(os.getcwd(), 'static')
+    img_filename = 'live_linreg_plot.png'
+    img_path = os.path.join(static_dir, img_filename)  # getting img pathway so it can be saved
+    plt.savefig(img_path, format='png', dpi=300)  # saving plot as an image to be used in flask app
+    plt.close(fig)  # closing matplotlib figure to free up memory
 
-
-df, missing_count = get_daily_stock_data("^GSPC", TIME_PERIOD)
-x_train, y_train, x_test, y_test = prep_data(df=df)
-# print(y_train.value_counts(), y_test.value_counts())
-# print(df, missing_count)
-
-print("Shape of x_train:", x_train.shape)
-print("Shape of y_train:", y_train.shape)
-print("Shape of x_test:", x_test.shape)
-print("Shape of y_test:", y_test.shape)
-
-lr_classifier = LogisticRegression()  # initialize model
-scaler = StandardScaler()  # why am i scaling again? is it bc of CLASS IMBALANCE
-x_train_scaled = scaler.fit_transform(x_train)
-x_test_scaled = scaler.transform(x_test)
-print("Columns in x_train:", x_train.columns)
-print("Shape of x_train_scaled:", x_train_scaled.shape)
-print("Shape of x_test_scaled:", x_test_scaled.shape)
-
-lr_classifier.fit(X=x_train_scaled, y=y_train)
-predictions = lr_classifier.predict(x_test_scaled)
+    print(f"Plot saved to {img_path}")
+    return img_filename
 
 
 
-print("Accuracy:", accuracy_score(y_test, predictions))
-print("Class distribution in y_train:", y_train.value_counts(normalize=True))
-print("Class distribution in y_test:", y_test.value_counts(normalize=True))
 
-feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(lr_classifier.coef_[0])})
-print(feature_importance.sort_values('importance', ascending=False))
-print(predictions)
-print('The Model Accuracy on The Validation Data Was:', round(accuracy_score(y_test, predictions), 3)*100, '%')
-# boo = plot_confusion_matrix(y_true=y_test, y_pred=predictions)
-# print(boo)
+
+
+
+
+# df, missing_count = get_daily_stock_data("^GSPC", TIME_PERIOD)
+# x_train, y_train, x_test, y_test = prep_data(df=df)
+# # print(y_train.value_counts(), y_test.value_counts())
+# # print(df, missing_count)
+#
+
+# lr_classifier = LogisticRegression()  # initialize model
+# scaler = StandardScaler()  # why am i scaling again? is it bc of CLASS IMBALANCE
+# x_train_scaled = scaler.fit_transform(x_train)
+# x_test_scaled = scaler.transform(x_test)
+# print("Columns in x_train:", x_train.columns)
+# print("Shape of x_train_scaled:", x_train_scaled.shape)
+# print("Shape of x_test_scaled:", x_test_scaled.shape)
+#
+# lr_classifier.fit(X=x_train_scaled, y=y_train)
+# predictions = lr_classifier.predict(x_test_scaled)
+#
+#
+#
+# print("Accuracy:", accuracy_score(y_test, predictions))
+# print("Class distribution in y_train:", y_train.value_counts(normalize=True))
+# print("Class distribution in y_test:", y_test.value_counts(normalize=True))
+#
+# feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(lr_classifier.coef_[0])})
+# print(feature_importance.sort_values('importance', ascending=False))
+# print(predictions)
+# print('The Model Accuracy on The Validation Data Was:', round(accuracy_score(y_test, predictions), 3)*100, '%')
+# # boo = plot_confusion_matrix(y_true=y_test, y_pred=predictions)
+# # print(boo)
