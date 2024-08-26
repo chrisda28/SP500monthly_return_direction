@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Model
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+
+        <h1 id="metrics">Key Model Metrics</h1>
+        <img id="confusion" src="{{ url_for('static', filename=confusion) }}" alt="confusion matrix"/>
+        <p class="lead">Welcome to the .
+
+        <table class="importance">
+    <thead>
+        <tr>
+            <th class="text-start">Symbol</th>
+            <th class="text-end">Shares</th>
+            <th class="text-end">Price</th>
+            <th class="text-end">TOTAL</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}  ### use this to get ahold of the importance data !!!
+        <tr>
+            <td class="text-start">test</td>
+            <td class="text-end">test</td>
+            <td class="text-end">test</td>
+            <td class="text-end">test</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+        <p> {{ accuracy }} </p>
+
+    </div>
+{% endblock %}
