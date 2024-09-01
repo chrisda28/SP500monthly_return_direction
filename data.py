@@ -11,9 +11,19 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
+INDICES = {
+    'SP500': '^GSPC',
+    'Russell 2000': '^RUT',
+    'Dow Jones': '^DJI',
+    'Nasdaq': '^IXIC'
+}
+
 
 def get_daily_stock_data(ticker: str, time_period: str):
-    """Get daily stock data, format date column, and calc NaN value occurrence"""
+    """Get daily index data, format date column, and calc NaN value occurrence"""
+    ticker = INDICES.get(ticker)
+    if not ticker:
+        raise ValueError(f"Invalid index name: {ticker}")
     stock = yf.Ticker(ticker)  # create stock object
     history = stock.history(period=time_period)  # specify data time period to receive
     df = pd.DataFrame(history)  # convert stock data to dataframe
@@ -45,7 +55,7 @@ def prep_data(df):
     train_data = df.iloc[:train_index].copy()  # 80% training 20% testing
     test_data = df.iloc[train_index:].copy()
 
-    x_train = train_data.drop(['Target_Label', 'Monthly_Return'], axis=1) # Dropping 'Daily_Return' as it's too
+    x_train = train_data.drop(['Target_Label', 'Monthly_Return'], axis=1)  # Dropping 'Daily_Return' as it's too
     # closely related to the target label (next day's return direction) and 'Target_Label'
     # as it's what model trying to predict
     y_train = train_data['Target_Label']
@@ -66,7 +76,8 @@ def run_model(ticker, time_period):
     lr_classifier.fit(X=x_train_scaled, y=y_train)
     predictions = lr_classifier.predict(x_test_scaled)
     accuracy = accuracy_score(y_test, predictions)
-    return predictions, accuracy, y_test
+    return predictions, accuracy, y_test, lr_classifier
+
 
 def plot_confusion_matrix(y_true, y_pred):
     mtx = confusion_matrix(y_true, y_pred)
@@ -75,7 +86,7 @@ def plot_confusion_matrix(y_true, y_pred):
     plt.ylabel('true label')
     plt.xlabel('predicted label')
     static_dir = os.path.join(os.getcwd(), 'static')
-    img_filename = 'live_linreg_plot.png'
+    img_filename = 'confusion_matrix.png'
     img_path = os.path.join(static_dir, img_filename)  # getting img pathway so it can be saved
     plt.savefig(img_path, format='png', dpi=300)  # saving plot as an image to be used in flask app
     plt.close(fig)  # closing matplotlib figure to free up memory
@@ -84,38 +95,9 @@ def plot_confusion_matrix(y_true, y_pred):
     return img_filename
 
 
+def feature_importance(model, x_train):
+    """Graphically display feature importance"""
+    feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(model.coef_[0])})
+    return feature_importance
 
 
-
-
-
-
-# df, missing_count = get_daily_stock_data("^GSPC", TIME_PERIOD)
-# x_train, y_train, x_test, y_test = prep_data(df=df)
-# # print(y_train.value_counts(), y_test.value_counts())
-# # print(df, missing_count)
-#
-
-# lr_classifier = LogisticRegression()  # initialize model
-# scaler = StandardScaler()  # why am i scaling again? is it bc of CLASS IMBALANCE
-# x_train_scaled = scaler.fit_transform(x_train)
-# x_test_scaled = scaler.transform(x_test)
-# print("Columns in x_train:", x_train.columns)
-# print("Shape of x_train_scaled:", x_train_scaled.shape)
-# print("Shape of x_test_scaled:", x_test_scaled.shape)
-#
-# lr_classifier.fit(X=x_train_scaled, y=y_train)
-# predictions = lr_classifier.predict(x_test_scaled)
-#
-#
-#
-# print("Accuracy:", accuracy_score(y_test, predictions))
-# print("Class distribution in y_train:", y_train.value_counts(normalize=True))
-# print("Class distribution in y_test:", y_test.value_counts(normalize=True))
-#
-# feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(lr_classifier.coef_[0])})
-# print(feature_importance.sort_values('importance', ascending=False))
-# print(predictions)
-# print('The Model Accuracy on The Validation Data Was:', round(accuracy_score(y_test, predictions), 3)*100, '%')
-# # boo = plot_confusion_matrix(y_true=y_test, y_pred=predictions)
-# # print(boo)
