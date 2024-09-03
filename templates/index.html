@@ -12,6 +12,15 @@
             be positive or negative.Data is pulled in through Yahoo Finance (yfinance) and cleaned/evaluated with
         Pandas. For future months, the models outputs either a 0 (negative monthly return) or a 1 (positive monthly return)
         </p>
-        <!-- Your app content goes here -->
+        <h2>Selected Index: {{ selected_index }}</h2>
+        <form id="index-form" method="post" action="{{ request.path }}" class="mb-3">
+            <select name="index_name" id="index-select" class="form-control d-inline-block w-auto">
+                <option value="S&P 500" {% if selected_index == 'S&P 500' %}selected{% endif %}>S&P 500</option>
+                <option value="Russell 2000" {% if selected_index == 'Russell 2000' %}selected{% endif %}>Russell 2000</option>
+                <option value="Nasdaq" {% if selected_index == 'Nasdaq' %}selected{% endif %}>Nasdaq</option>
+                <option value="Dow Jones" {% if selected_index == 'Dow Jones' %}selected{% endif %}>Dow Jones</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Select Index</button>
+        </form>
     </div>
 {% endblock %}
