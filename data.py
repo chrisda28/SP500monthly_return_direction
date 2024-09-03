@@ -11,7 +11,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
-INDICES = {
+INDICES = {    # mapping index to yahoo finance ticker
     'SP500': '^GSPC',
     'Russell 2000': '^RUT',
     'Dow Jones': '^DJI',
@@ -29,7 +29,7 @@ def get_daily_stock_data(ticker: str, time_period: str):
     df = pd.DataFrame(history)  # convert stock data to dataframe
     df = df.drop(['Dividends', 'Stock Splits'], axis=1)  # drop unneeded columns
     df = df.reset_index()  # making date column normal to
-    # parse away unneeded time info that was included in the date values
+    # remove unneeded time info that was included in the date values
     df["Date"] = pd.to_datetime(df['Date']).dt.date  # convert date column to datetime and proper format
     missing_count = df.isnull().sum()  # summing up all null values in df
     df.set_index("Date", inplace=True)  # setting date column as the index
@@ -45,14 +45,13 @@ def prep_data(df):
 
     df['MA_20'] = df['Close'].rolling(window=20).mean()  # find moving averages
     df['MA_60'] = df['Close'].rolling(window=60).mean()
-    df['Volatility'] = df['Monthly_Return'].rolling(window=60).std()
-
+    df['Volatility'] = df['Monthly_Return'].rolling(window=60).std()  # find standard deviation
     df.dropna(inplace=True)
 
     total_rows = len(df)
     train_index = int(total_rows * 0.8)
-
-    train_data = df.iloc[:train_index].copy()  # 80% training 20% testing
+    # Split data into training (80%) and testing (20%) sets
+    train_data = df.iloc[:train_index].copy()
     test_data = df.iloc[train_index:].copy()
 
     x_train = train_data.drop(['Target_Label', 'Monthly_Return'], axis=1)  # Dropping 'Daily_Return' as it's too
@@ -69,25 +68,27 @@ def prep_data(df):
 def run_model(ticker, time_period):
     df, missing_count = get_daily_stock_data(ticker=ticker, time_period=time_period)
     x_train, y_train, x_test, y_test = prep_data(df=df)
-    lr_classifier = LogisticRegression()
-    scaler = StandardScaler()
-    x_train_scaled = scaler.fit_transform(x_train)
-    x_test_scaled = scaler.transform(x_test)
-    lr_classifier.fit(X=x_train_scaled, y=y_train)
-    predictions = lr_classifier.predict(x_test_scaled)
+    lr_classifier = LogisticRegression()   # initialize model
+    scaler = StandardScaler()  # initialize scaler
+    x_train_scaled = scaler.fit_transform(x_train)  # this step gets the mean and standard deviation of each feature
+    # and standardizes it with (x - mean)/std_dev
+    x_test_scaled = scaler.transform(x_test)  # apply scaling done in line above to test data
+    lr_classifier.fit(X=x_train_scaled, y=y_train)  # train the model
+    predictions = lr_classifier.predict(x_test_scaled)    # and make predictions
     accuracy = accuracy_score(y_test, predictions)
     return predictions, accuracy, y_test, lr_classifier
 
 
 def plot_confusion_matrix(y_true, y_pred):
+    """get visualize showing accuracy of model"""
     mtx = confusion_matrix(y_true, y_pred)
     fig, ax = plt.subplots(figsize=(8, 8))
     sns.heatmap(mtx, annot=True, fmt='d', linewidths=.75,  cbar=False, ax=ax, cmap='Blues', linecolor='white')
     plt.ylabel('true label')
     plt.xlabel('predicted label')
-    static_dir = os.path.join(os.getcwd(), 'static')
+    static_dir = os.path.join(os.getcwd(), 'static')  # getting img pathway so it can be saved
     img_filename = 'confusion_matrix.png'
-    img_path = os.path.join(static_dir, img_filename)  # getting img pathway so it can be saved
+    img_path = os.path.join(static_dir, img_filename)
     plt.savefig(img_path, format='png', dpi=300)  # saving plot as an image to be used in flask app
     plt.close(fig)  # closing matplotlib figure to free up memory
 
@@ -95,8 +96,8 @@ def plot_confusion_matrix(y_true, y_pred):
     return img_filename
 
 
-def feature_importance(model, x_train):
-    """Graphically display feature importance"""
+def ft_importance(model, x_train):
+    """Display feature importance"""
     feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(model.coef_[0])})
     return feature_importance
 
