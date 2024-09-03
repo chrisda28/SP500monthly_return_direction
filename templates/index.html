@@ -8,9 +8,9 @@
     <div class="container">
 
         <h1 id="about">About the model</h1>
-        <p class="lead">This objective of this model is to predict whether future monthly returns on the SP500 will
-            be positive or negative.Data is pulled in through Yahoo Finance (yfinance) and cleaned/evaluated with
-        Pandas. For future months, the models outputs either a 0 (negative monthly return) or a 1 (positive monthly return)
+        <p class="lead">This objective of this model is to predict whether monthly returns on an index is
+            positive or negative. Data is pulled in through Yahoo Finance (yfinance) and cleaned/evaluated with
+        Pandas. The models outputs either a 0 (negative monthly return) or a 1 (positive monthly return)
         </p>
         <h2>Selected Index: {{ selected_index }}</h2>
         <form id="index-form" method="post" action="{{ request.path }}" class="mb-3">
