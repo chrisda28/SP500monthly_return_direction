@@ -6,7 +6,7 @@
 
 {% block main %}
     <div class="container">
-        <h1 id="metrics">Key Model Metrics</h1>
+        <h1 id="metrics">Key Model Metrics for {{ selected_index }} Index</h1>
         <img id="confusion" src="{{ url_for('static', filename=confusion) }}" alt="confusion matrix"/>
         <p class="lead">Model Accuracy: {{ accuracy }}</p>
 
