@@ -12,7 +12,6 @@
             positive or negative. Data is pulled in through Yahoo Finance (yfinance) and cleaned/evaluated with
         Pandas. The models outputs either a 0 (negative monthly return) or a 1 (positive monthly return)
         </p>
-        <h2>Selected Index: {{ selected_index }}</h2>
         <form id="index-form" method="post" action="{{ request.path }}" class="mb-3">
             <select name="index_name" id="index-select" class="form-control d-inline-block w-auto">
                 <option value="S&P 500" {% if selected_index == 'S&P 500' %}selected{% endif %}>S&P 500</option>
@@ -21,6 +20,22 @@
                 <option value="Dow Jones" {% if selected_index == 'Dow Jones' %}selected{% endif %}>Dow Jones</option>
             </select>
             <button type="submit" class="btn btn-secondary">Select Index</button>
+        </form>
+        <form id="index-form-time" method="post" action="{{ request.path }}" class="mb-3">
+            <select name="index_time" id="index-select-time" class="form-control d-inline-block w-auto">
+                <option value="1d" {% if selected_index == '1d' %}selected{% endif %}>1 Day</option>
+                <option value="5d" {% if selected_index == '5d' %}selected{% endif %}>5 Days</option>
+                <option value="1mo" {% if selected_index == '1mo' %}selected{% endif %}>1 Month</option>
+                <option value="3mo" {% if selected_index == '3mo' %}selected{% endif %}>3 Months</option>
+                <option value="6mo" {% if selected_index == '6mo' %}selected{% endif %}>6 Months</option>
+                <option value="1y" {% if selected_index == '1y' %}selected{% endif %}>1 Year</option>
+                <option value="2y" {% if selected_index == '2y' %}selected{% endif %}>2 Years</option>
+                <option value="5y" {% if selected_index == '5y' %}selected{% endif %}>5 Years</option>
+                <option value="10y" {% if selected_index == '10y' %}selected{% endif %}>10 Years</option>
+                <option value="ytd" {% if selected_index == 'ytd' %}selected{% endif %}>Year to Date</option>
+                <option value="max" {% if selected_index == 'max' %}selected{% endif %}>Maximum</option>
+            </select>
+            <button type="submit" class="btn btn-secondary">Select Time Frame</button>
         </form>
     </div>
 {% endblock %}
