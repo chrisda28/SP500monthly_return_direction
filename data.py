@@ -12,7 +12,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 
 INDICES = {    # mapping index to yahoo finance ticker
-    'SP500': '^GSPC',
+    'S&P 500': '^GSPC',
     'Russell 2000': '^RUT',
     'Dow Jones': '^DJI',
     'Nasdaq': '^IXIC'
@@ -38,6 +38,8 @@ def get_daily_stock_data(ticker: str, time_period: str):
 
 def prep_data(df):
     """split data for training, testing"""
+    df['Range'] = df['High'] - df['Low']
+    df = df.drop(['High', 'Low'], axis=1)
     df['Monthly_Return'] = df['Close'].pct_change(periods=20)  # Approximately one month of trading days
     df['Target_Label'] = (df['Monthly_Return'].shift(-20) > 0).astype(int)  # Predict next month's direction, predict
     # 5 days into future create column for bool value, pos return = 1 neg return = 0,
@@ -54,8 +56,8 @@ def prep_data(df):
     train_data = df.iloc[:train_index].copy()
     test_data = df.iloc[train_index:].copy()
 
-    x_train = train_data.drop(['Target_Label', 'Monthly_Return'], axis=1)  # Dropping 'Daily_Return' as it's too
-    # closely related to the target label (next day's return direction) and 'Target_Label'
+    x_train = train_data.drop(['Target_Label', 'Monthly_Return'], axis=1)  # Dropping 'Monthly_Return' as it's too
+    # closely related to the target label (next month's return direction) and 'Target_Label'
     # as it's what model trying to predict
     y_train = train_data['Target_Label']
 
@@ -100,5 +102,3 @@ def ft_importance(model, x_train):
     """Display feature importance"""
     feature_importance = pd.DataFrame({'feature': x_train.columns, 'importance': abs(model.coef_[0])})
     return feature_importance
-
-

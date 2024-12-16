@@ -5,7 +5,7 @@ body {
     color: #333;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #d0d0d0;
 }
 
 .container {
@@ -17,7 +17,7 @@ body {
 
 /* Header styles */
 .bg-primary {
-    background-color: #007bff !important;
+    background-color: #8B0000 !important;
     padding: 20px 0;
 }
 
@@ -68,18 +68,43 @@ tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-/* Image styles */
-#confusion {
-    max-width: 100%;
-    height: auto;
-    margin-top: 20px;
+/* In your style.css */
+.metrics-section {
+    margin-bottom: 40px;
 }
 
-/* Responsive design */
+.metrics-section img {
+    width: 100%;
+    max-width: 800px;  /* Adjust this value to control maximum width */
+    height: auto;
+    margin: 20px auto;
+    display: block;
+}
+
+#line-plot {
+    width: 100%;
+    max-width: 800px;  /* Match the confusion matrix width */
+}
+
+/* Optional: Center the headings if desired */
+.metrics-section h2 {
+    text-align: center;
+}
+
+/* Make it responsive */
 @media (max-width: 768px) {
-    .container {
-        width: 95%;
+    #line-plot {
+        min-width: 100%;
     }
+
+    .row {
+        flex-direction: column;
+    }
+
+    .col-md-6, .col-lg-6 {
+        width: 100%;
+    }
+}
 
     table {
         font-size: 14px;

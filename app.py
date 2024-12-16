@@ -74,6 +74,7 @@ def evaluate():
     df, missing_count = get_daily_stock_data(ticker=index_name, time_period=timeframe)
     x_train, y_train, x_test, y_test = prep_data(df=df)
     predictions, accuracy, y_test, lr_classifier = run_model(ticker=index_name, time_period=timeframe)
+    dates = df.index[-len(y_test):]
     confusion_img = plot_confusion_matrix(y_true=y_test, y_pred=predictions)
     importance = ft_importance(model=lr_classifier, x_train=x_train)
     importance_data = importance.to_dict('records')

@@ -7,8 +7,14 @@
 {% block main %}
     <div class="container">
         <h1 id="metrics">Key Model Metrics for {{ selected_index }} Index {{ selected_timeframe }} Data</h1>
+
+        <div class="metrics-section">
+        <h2>Confusion Matrix</h2>
         <img id="confusion" src="{{ url_for('static', filename=confusion) }}" alt="confusion matrix"/>
-        <p class="lead">Model Accuracy: {{ accuracy }}</p>
+    </div>
+
+
+        <p class="lead">Model Accuracy: {{ accuracy }}%</p>
 
         <h2>Feature Importance</h2>
         <table class="importance table table-striped">
