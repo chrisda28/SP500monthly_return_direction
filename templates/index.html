@@ -19,12 +19,8 @@
                 <option value="Nasdaq" {% if selected_index == 'Nasdaq' %}selected{% endif %}>Nasdaq</option>
                 <option value="Dow Jones" {% if selected_index == 'Dow Jones' %}selected{% endif %}>Dow Jones</option>
             </select>
-            <button type="submit" class="btn btn-secondary">Select Index</button>
-        </form>
-        <form id="index-form-time" method="post" action="{{ request.path }}" class="mb-3">
-            <select name="index_time" id="index-select-time" class="form-control d-inline-block w-auto">
-                <option value="1d" {% if selected_index == '1d' %}selected{% endif %}>1 Day</option>
-                <option value="5d" {% if selected_index == '5d' %}selected{% endif %}>5 Days</option>
+
+            <select name="timeframe" id="index-select-time" class="form-control d-inline-block w-auto">
                 <option value="1mo" {% if selected_index == '1mo' %}selected{% endif %}>1 Month</option>
                 <option value="3mo" {% if selected_index == '3mo' %}selected{% endif %}>3 Months</option>
                 <option value="6mo" {% if selected_index == '6mo' %}selected{% endif %}>6 Months</option>
@@ -35,7 +31,8 @@
                 <option value="ytd" {% if selected_index == 'ytd' %}selected{% endif %}>Year to Date</option>
                 <option value="max" {% if selected_index == 'max' %}selected{% endif %}>Maximum</option>
             </select>
-            <button type="submit" class="btn btn-secondary">Select Time Frame</button>
+
+            <button type="submit" class="btn btn-secondary">Run Model</button>
         </form>
     </div>
 {% endblock %}
